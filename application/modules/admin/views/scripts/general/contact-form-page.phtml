@@ -1,0 +1,65 @@
+<script>
+ (function(){
+        var perPage = <?php echo $this->perPage; ?>;
+        var winMaxHeight	= 130;
+        var winMaxWidth	= 300;
+        var windowActive	= false;
+
+        var contactFormStore = new Ext.data.JsonStore({
+            url: 'admin/general/get-contact-form',
+            fields: ['contact_id', 'email', 'name', 'message'],
+            root: "items",
+            id: 'id',
+            totalProperty: 'total'
+        });
+
+        contactFormStore.load();
+
+        var contactFormGrid = new Ext.grid.GridPanel({
+                store: contactFormStore,
+                loadMask: true,
+                columns: [
+                    {header: "Email", dataIndex: 'email'},
+                    {header: "Name", dataIndex: 'name'},
+                    {header: "Message", dataIndex: 'message'}
+                ],
+                viewConfig: {
+                    autoFill: true,
+                    forceFit: true
+                },
+                listeners: {
+                    celldblclick: function() {
+                            goToView();
+                    }
+                },
+                bbar: new Ext.PagingToolbar({
+                    pageSize: perPage,
+                    store: contactFormStore
+                })
+         });
+
+        var goToView = function(){
+            var sm = contactFormGrid.getSelectionModel();
+            var selectedRole = sm.getSelected();
+            UI.mainPanel.load('admin/general/contact-form-view-page/contact_id/'+selectedRole.data.contact_id);
+        };
+
+        var main_panel = new Ext.Panel({
+            layout: 'fit',
+            frame: false,
+            border: false,
+            items: [contactFormGrid],
+            tbar: new Ext.Toolbar({
+                items: []
+            })
+        });
+        
+        UI.activeTab.add(main_panel);
+        UI.activeTab.setTitle('Contact form results');
+
+        UI.activeTab.doLayout();
+        UI.statusbar.clearStatus();
+     
+    })();
+
+</script>

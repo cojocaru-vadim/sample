@@ -1,0 +1,14 @@
+<?php
+        if(count($this->messages) > 0)
+        {
+            echo '<div class="form_error_message"><ul>';
+            for($i = 0; $i < count($this->messages); $i++)
+            {
+                echo '<li>'.$this->messages[$i].'</li>';
+            }
+            echo '</ul></div><br />';
+        }
+    ?>
+<p>
+<? echo $this->translate('add-success-text'); ?>
+</p>

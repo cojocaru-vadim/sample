@@ -1,0 +1,427 @@
+<?php
+ $fb_lang = $this->lang=='ro_MD' ?  'ro_RO' : $this->lang;
+ if($fb_lang == 'ro_RO'){
+     $gPlus = "{lang: 'ro'}";
+ }elseif($fb_lang == 'ru_RU'){
+     $gPlus = "{lang: 'ru'}";
+ }else{
+     $gPlus = '';
+ }
+?>
+<?php echo $this->doctype() ?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="data:image/x-icon;base64,
+iVBORw0KGgoAAAANSUhEUgAAACAAAAAfCAYAAACGVs+MAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A
+/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9sFGhQIKzwjBiMAAADASURBVEjH
+7ZMxDsIwDEWfq7LAFbgKAomNuRJDL1vW3oCJhTNkQ2YorRKrASSIuvhJltLfJv61HXAcx3EWRpZJ
+qzquavuqg3v8HOBygraUlerTB2vYl6xFlfv7A2xjXRUd41VEtdq8ribYxTmnFvRwDTPJMx3Ub7RB
+F0QUkBp4xP1PKhBgYzcnRppocgUZI5nojA4iQ/JpnRrIlZ5hVz9nouQQruI4wvmf1862oLbXroPb
+27OaX02IWBOO4zjOojwB2FZVJHNUCFcAAAAASUVORK5CYII=" rel="icon" type="image/x-icon" />
+    <?php echo $this->headTitle() ?>
+    <?php echo $this->headLink() ?>
+    <?php echo $this->headScript() ?>
+
+<link href="http://stg.odnoklassniki.ru/share/odkl_share.css" rel="stylesheet">
+<script src="http://stg.odnoklassniki.ru/share/odkl_share.js" type="text/javascript" ></script>
+<script type="text/javascript" src="https://apis.google.com/js/plusone.js"><?php echo $gPlus; ?></script>
+
+<meta name="description" content="<?php echo $this->translate('meta-description'); ?>" />
+<meta name="keywords" content="<?php echo $this->translate('meta-keywords'); ?>" />
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-23654630-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+</head>
+
+<body onload="ODKL.init(); init();">
+
+
+<div id="top">
+    <div id="top_center">
+            <a href="/" id="logo"></a>
+            <div id="menu_container">
+                <ul class="navigation">
+                    <li>
+                        <a href="/companies"><div class="menu_div" id="menu_div_catalog"><?php echo $this->translate('menu-catalog');?>&nbsp;</div></a>
+                    </li>
+                    <li>
+                        <a href="<?php echo $this->url(array('controller' => 'harta'), 'default', true); ?>"><div class="menu_div" id="menu_div_map"><?php echo $this->translate('menu-map');?>&nbsp;&nbsp;&nbsp;</div></a>
+                    </li>
+                    <li>
+                        <a href="<?php echo $this->url(array('page' => 'services'), 'static-content', true); ?>"><div class="menu_div" id="menu_div_services"><?php echo $this->translate('menu-services');?>&nbsp;</div></a>
+                    </li>
+                    <li>
+                        <a href="<?php echo $this->url(array('page' => 'help'), 'static-content', true); ?>"><div class="menu_div" id="menu_div_help"><?php echo $this->translate('menu-help');?>&nbsp;&nbsp;&nbsp;</div></a>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="fb_like_box">
+                <g:plusone></g:plusone>
+                <!--<div id="fb-root"></div><script src="http://connect.facebook.net/<?php echo $fb_lang; ?>/all.js#xfbml=1"></script><fb:like href="www.delta.md" layout="button_count" send="true" width="218" show_faces="false" font="arial"></fb:like>
+                <div style="float: left;">
+                    <div style="float:left;"><a class="odkl-klass-stat" href="/" onclick="ODKL.Share(this);return false;" ><span>0</span></a></div>
+                    <div style="float:right;"><a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="delta_md">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script></div>
+                </div>-->
+            </div>
+
+
+            <div id="lang_login_container">
+
+            <?php  if(Moldova_Utils::checkAccount($this->url())): ?>
+            <div id="success_login">
+                <span>
+                    <?php echo $this->translate('welcome-message'); ?>
+                </span><br />
+                <a class="header_logout" href="/logout"><?php echo $this->translate('logout'); ?></a>
+            </div>
+            <?php else: ?> 
+
+                               <div id="login_container">
+                                   <a style="width:90px;" onClick="logIn(); return false;" class="header_login" href=""><?php echo $this->translate('login'); ?></a>
+                                   <div class="right" id="userSelectOptions" style="display: none;">
+                                       <div id="status-message">
+                                       </div>
+                                       <form method="post" action="/default/login/ajax-login" style="margin: 5px;" target="upload_target" onsubmit="startLogin();">
+                                           <div class="login_label">
+                                               <label for="email">Email:</label>
+                                           </div>
+                                           <div style="float: left;">
+                                               <input id="email" type="text" class="form-text form-field" value="" name="email" />
+                                           </div>
+                                           <div style="clear: both;"></div>
+                                           <br />
+                                           <div class="login_label">
+                                               <label for="password"><?php echo $this->translate('password'); ?>:</label>
+                                           </div>
+                                           <div style="float: left;">
+                                               <input id="password" type="password" class="form-text form-field" value="" name="password" />
+                                           </div>
+                                           <br />
+                                           <div style="padding-top: 10px; clear: both; margin-left: 196px;" id="formbutton">
+                                                   <input id="login-submit-btn" type="submit" class="header_login" value="<?php echo $this->translate('login');?>" name="login" />
+                                           </div>
+                                       </form>
+                                       <iframe id="upload_target" name="upload_target" src="#" style="width:0;height:0;border:0px solid #fff;"></iframe>
+                                   </div>
+                               </div>
+                               <a id='signup_container' class="header_login" href="/signup"><?php echo $this->translate('signup'); ?></a>
+
+            <div id="success_login" style="display: none;">
+                <span>
+                    <?php echo $this->translate('welcome-message'); ?>
+                </span><br />
+                <a class="header_logout" href="/logout"><?php echo $this->translate('logout'); ?></a>
+            </div>
+
+            <?php endif; ?>
+
+
+
+                <div id="locale">
+                    <a href="<?php echo $this->url(array('module' => 'default', 'controller' => 'locale', 'action' => 'index', 'locale' => 'ro_MD'), 'default', true); ?>">
+                        <img src="/img/locale/ro_MD.png" />
+                    </a>
+                    <a href="<?php echo $this->url(array('module' => 'default', 'controller' => 'locale', 'action' => 'index', 'locale' => 'ru_RU'), 'default', true); ?>">
+                        <img src="/img/locale/ru_RU.png" />
+                    </a>
+                    <a href="<?php echo $this->url(array('module' => 'default', 'controller' => 'locale', 'action' => 'index', 'locale' => 'en_US'), 'default', true); ?>">
+                        <img src="/img/locale/en_US.png" />
+                    </a>
+
+                </div>
+
+            </div>
+    </div>
+</div>
+
+<div style="clear:both;"></div>
+
+<div id="middle">
+    <div id="middle_center">
+
+<!--Start left content-->
+        <div id="left_content">
+
+
+<!--/************************************************** METEO *********************************************/-->
+<div style="margin:0;" class="side_box" id="weather">
+    <span class="side_box_title"><?php echo $this->boxTitle; ?></span>
+    <div class="side_box_content">
+        <ul>
+        <?php
+
+            if(isset($this->regions)){
+                foreach($this->regions as $region){
+                    echo "<li><a href='".$this->url(array('region' => $region['region_url']), 'meteo')."'>".$region['region_name']." </a></li>";
+                    //echo "<li><a href='".$region['region_url']."'>".$region['region_name']."</a></li>";
+                }
+            }elseif(isset($this->localities)){
+                foreach($this->localities as $localities){
+                    echo "<li><a href='".$this->url(array('region' => $localities['Moldova_Model_Regions']['region_url'] , 'locality' => $localities['locality_url']), 'meteo')."'>".$localities['locality_name']." </a></li>";
+                    //echo "<li><a href='".$region['region_url']."'>".$region['region_name']."</a></li>";
+                }
+            }else{
+                foreach($this->localities as $localities){
+                    echo "<li><a href='".$this->url(array('region' => $localities['Moldova_Model_Regions']['region_url'] , 'locality' => $localities['locality_url']), 'meteo')."'>".$localities['locality_name']." </a></li>";
+                    //echo "<li><a href='".$region['region_url']."'>".$region['region_name']."</a></li>";
+                }
+            }
+        ?>
+        </ul>
+     </div>
+</div>
+<br />
+<!--/************************************************** METEO *********************************************/-->
+
+
+<!--/************************************************** CURRENCY *********************************************/-->
+<div class="side_box" id="currency">
+    <span class="side_box_title"><?php echo $this->translate('currency'); ?></span>
+    <div style="" class="side_box_content">
+        <div>
+            <img style="float:left;" src="<?php echo $this->baseUrl('/img/icons/currency/EUR.png');?>" />
+            <span style="display:block; width:188px; padding-top:5px;">
+                &nbsp;EUR = <?php echo $this->currency_information['EUR']['value']; ?>
+                <img src="<?php echo $this->baseUrl('/img/icons/currency/'.$this->currency_information['EUR']['differenceImg'].'.png');?>" />
+                <?php echo $this->currency_information['EUR']['difference']; ?>
+            </span>
+        </div>
+        <div style="clear:both;"></div>
+        <div>
+            <img style="float:left;" src="<?php echo $this->baseUrl('/img/icons/currency/USD.png');?>" />
+            <span style="display:block; width:188px; padding-top:5px;">
+                &nbsp;USD = <?php echo $this->currency_information['USD']['value']; ?>
+                <img src="<?php echo $this->baseUrl('/img/icons/currency/'.$this->currency_information['USD']['differenceImg'].'.png');?>" />
+                <?php echo $this->currency_information['USD']['difference']; ?>
+            </span>
+        </div>
+        <div style="clear:both;"></div>
+        <div>
+            <img style="float:left;" src="<?php echo $this->baseUrl('/img/icons/currency/RUB.png');?>" />
+            <span style="display:block; width:188px; padding-top:5px;">
+                &nbsp;RUB = <?php echo $this->currency_information['RUB']['value']; ?>&nbsp;&nbsp;
+                <img src="<?php echo $this->baseUrl('/img/icons/currency/'.$this->currency_information['RUB']['differenceImg'].'.png');?>" />
+                <?php echo $this->currency_information['RUB']['difference']; ?>
+            </span>
+        </div>
+        <div style="clear:both;"></div>
+        <div>
+            <img style="float:left;" src="<?php echo $this->baseUrl('/img/icons/currency/RON.png');?>" />
+            <span style="display:block; width:188px; padding-top:5px;">
+                &nbsp;RON = <?php echo $this->currency_information['RON']['value']; ?>&nbsp;&nbsp;
+                <img src="<?php echo $this->baseUrl('/img/icons/currency/'.$this->currency_information['RON']['differenceImg'].'.png');?>" />
+                <?php echo $this->currency_information['RON']['difference']; ?>
+            </span>
+        </div>
+        <div style="clear:both;"></div>
+        <div>
+            <img style="float:left;" src="<?php echo $this->baseUrl('/img/icons/currency/UAH.png');?>" />
+            <span style="display:block; width:188px; padding-top:5px;">
+                &nbsp;UAH = <?php echo $this->currency_information['UAH']['value']; ?>&nbsp;&nbsp;
+                <img src="<?php echo $this->baseUrl('/img/icons/currency/'.$this->currency_information['UAH']['differenceImg'].'.png');?>" />
+                <?php echo $this->currency_information['UAH']['difference']; ?>
+            </span>
+        </div>
+        <div style="clear:both;"></div>
+     </div>
+</div>
+<script type="text/javascript">
+    var currency_information = <?php print Zend_Json_Encoder::encode($this->currency_information); ?> ;
+</script>
+<div class="side_box" id="currency_converter">
+        <span class="side_box_title"><?php echo $this->translate('currency-converter'); ?></span>
+        <div class="side_box_content">
+            <div style="margin-top:3px;">
+                <img style="float:left;" src="<?php echo $this->baseUrl('/img/icons/currency/MDL.png');?>" /><span class="currency_converter_span">MDL</span>&nbsp;
+                <input class="form-text currency_converter_input" type="text" name="MDL" id="MDL">
+            </div>
+            <div style="clear:both;"></div>
+            <div style="margin-top:3px;">
+                <img style="float:left;" src="<?php echo $this->baseUrl('/img/icons/currency/EUR.png');?>" /><span class="currency_converter_span">EUR</span>&nbsp;
+                <input class="form-text currency_converter_input" type="text" name="EUR" id="EUR">
+            </div>
+            <div style="clear:both;"></div>
+            <div style="margin-top:3px;">
+                <img style="float:left;" src="<?php echo $this->baseUrl('/img/icons/currency/USD.png');?>" /><span class="currency_converter_span">USD</span>&nbsp;
+                <input class="form-text currency_converter_input" type="text" name="USD" id="USD">
+            </div>
+            <div style="clear:both;"></div>
+            <div style="margin-top:3px;">
+                <img style="float:left;" src="<?php echo $this->baseUrl('/img/icons/currency/RUB.png');?>" /><span class="currency_converter_span">RUB</span>&nbsp;
+                <input class="form-text currency_converter_input" type="text" name="RUB" id="RUB">
+            </div>
+            <div style="clear:both;"></div>
+            <div style="margin-top:3px;">
+                <img style="float:left;" src="<?php echo $this->baseUrl('/img/icons/currency/RON.png');?>" /><span class="currency_converter_span">RON</span>&nbsp;
+                <input class="form-text currency_converter_input" type="text" name="RON" id="RON">
+            </div>
+            <div style="clear:both;"></div>
+            <div style="margin-top:3px;">
+                <img style="float:left;" src="<?php echo $this->baseUrl('/img/icons/currency/UAH.png');?>" /><span class="currency_converter_span">UAH</span>&nbsp;
+                <input class="form-text currency_converter_input" type="text" name="UAH" id="UAH">
+            </div>
+            <div style="clear:both;"></div>
+
+        </div>
+</div>
+<!--/************************************************** CURRENCY *********************************************/-->
+
+
+<!--/************************************************** NEWS *********************************************/-->
+<div class="side_box" id="news">
+    <span class="side_box_title"><?php echo $this->translate('news'); ?></span>
+    <div class="side_box_content" style="text-align:left;">
+
+  <?php $count = 0; ?>
+  <?php foreach ($this->news as $entry):?>
+    <?php if ($count >= 5) break; ?>
+
+    <div style="font-weight:bold;" class="news_title">
+      <?php echo $entry['title']; ?>
+    </div>
+    <div class="news_description" style="border-bottom:1px solid #33569E; padding: 5px 0;">
+      <?php echo $entry['description']; ?>
+    </div>
+
+    <?php $count++; ?>
+    <?php endforeach; ?>
+
+    <div><?php echo $this->translate('source') . ' : ' . $this->newsSource; ?></div>
+
+    </div>
+
+</div>
+<div style="clear:both;"></div>
+
+
+<!--/************************************************** NEWS *********************************************/-->
+
+
+
+        </div>
+<!--End left content-->
+
+<!--Breadcrumb generation-->
+<?php
+    $breadcrumb="";
+    if(isset($this->breadcrumb)){
+        $lastkey = array_pop(array_keys($this->breadcrumb));
+        $href = "";
+        while ($anchor = current($this->breadcrumb)) {
+            if(key($this->breadcrumb) == $lastkey){
+                break;
+            }
+            if(key($this->breadcrumb) != ''){
+                $href .="/";
+                $href .= key($this->breadcrumb);
+            }else {
+                $href = '';
+            }
+
+            $breadcrumb .="<li><a href='{$href}' title='{$anchor}'>{$anchor}</a></li>";
+
+            next($this->breadcrumb);
+        }
+        
+        $last_element = "<li>{$this->breadcrumb[$lastkey]}</li>";
+        $breadcrumb .= $last_element;
+    }
+?>
+<!--End Breadcrumb generation-->
+        
+<!--Start center content-->
+        <div id="center_content">
+            <ul id="breadcrumb">
+                <li><a href="/" title="Home"><img src="/img/home.gif" alt="Home" class="home" /></a></li>
+                <?php echo $breadcrumb ?>
+<!--            <li><a href="#" title="Sample page 1">Sample page 1</a></li>
+                <li><a href="#" title="Sample page 2">Sample page 2</a></li>
+                <li><a href="#" title="Sample page 3">Sample page 3</a></li>
+                <li>Current page</li>-->
+            </ul>
+            <?php //print_r($_SESSION); ?>
+            <?php echo $this->layout()->content ?>
+        </div>
+<!--End center content-->
+
+<!--Start right content-->
+        <div id="right_content">
+            <div class="side_box" style="margin-top:0px;">
+                <span class="side_box_title"><?php echo $this->translate('share');?></span>
+                    <div class="side_box_content">
+                    <div id="fb-root"></div><script src="http://connect.facebook.net/<?php echo $fb_lang; ?>/all.js#xfbml=1"></script><fb:like href="www.delta.md" layout="button_count" send="true" width="218" show_faces="false" font="arial"></fb:like>
+                        <br /><br />
+
+                        <!--<a class="odkl-share-oc" href="/" onclick="ODKL.Share(this);return false;" ><span>0</span></a>-->
+                        <a class="odkl-klass-stat" href="/" onclick="ODKL.Share(this);return false;" ><span>0</span></a>
+                        <a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="delta_md">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+                        <br /><br />
+                        <!-- AddThis Button BEGIN -->
+                        <div class="addthis_toolbox addthis_default_style ">
+                        <a class="addthis_button_preferred_1"></a>
+                        <a class="addthis_button_preferred_2"></a>
+                        <a class="addthis_button_preferred_3"></a>
+                        <a class="addthis_button_preferred_4"></a>
+                        <a class="addthis_button_compact"></a>
+                        <a class="addthis_counter addthis_bubble_style"></a>
+                        </div>
+                        <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=xa-4dfa71a648d81069"></script>
+                        <!-- AddThis Button END -->
+
+                </div>
+            </div>
+            <div class="side_box">
+                <span class="side_box_title"><?php echo $this->translate('advertising'); ?></span>
+                <div style="padding-left: 19px;" class="side_box_content">
+                    <script type="text/javascript"><!--
+                    google_ad_client = "ca-pub-0291792331147528";
+                    /* right side */
+                    google_ad_slot = "6663292108";
+                    google_ad_width = 160;
+                    google_ad_height = 600;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                    src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+                </div>
+            </div>
+            <div class="side_box">
+                <span class="side_box_title"><?php echo $this->translate('find-on-facebook'); ?></span>
+                <div class="side_box_content">
+                    <div id="fb-root"></div><script src="http://connect.facebook.net/<?php echo $fb_lang; ?>/all.js#xfbml=1"></script><fb:like-box href="https://www.facebook.com/pages/Deltamd/124393537635040" width="190" show_faces="true" stream="true" header="false"></fb:like-box>
+                </div>
+            </div>
+        </div>
+<!--End right content-->
+
+    </div>
+</div>
+<div id="bottom">
+    <div id="footer">
+        <span style="display:block; float:left; padding:10px 0;">&copy; Delta.md 2011</span>
+        <ul id="footer_menu">
+            <li><a href="<?php echo $this->url(array('page' => 'terms-conditions'), 'static-content', true); ?>"><?php echo $this->translate('terms-conditions');?></a></li>
+            <li><a href="<?php echo $this->url(array('page' => 'about-us'), 'static-content', true); ?>"><?php echo $this->translate('about-us');?></a></li>
+            <li><a href="<?php echo $this->url(array('page' => 'advertise'), 'static-content', true); ?>"><?php echo $this->translate('advertising'); ?></a></li>
+            <li><a href="<?php echo $this->url(array('module' => 'default', 'controller' => 'contact', 'action' => 'index'), 'default', true); ?>"><?php echo $this->translate('contact-us'); ?></a></li>
+        </ul>
+    </div>
+</div>
+
+</body>
+</html>

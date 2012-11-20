@@ -1,0 +1,51 @@
+<script>
+    (function(){
+        var delWinMaxHeight	= 120;
+        var delWinMaxWidth	= 280;
+        var perPage             = <?php echo $this->perPage; ?>;
+
+        var accountStore = new Ext.data.JsonStore({
+            url: 'admin/accounts/accounts-list',
+            fields: ['account_id', 'email'],
+            root: "items",
+            id: 'id',
+            totalProperty: 'total'
+        });
+
+        var accountGrid = new Ext.grid.GridPanel({
+            store: accountStore,
+            loadMask: true,
+            columns: [
+                {header: "ID", width: 30,  dataIndex: 'account_id'},
+                {header: "Email", dataIndex: 'email'}
+            ],
+            viewConfig: {
+                autoFill: true,
+                forceFit: true
+            },
+            listeners: {
+                celldblclick: function() {
+                        //publishCompanies();
+                }
+            },
+            bbar: new Ext.PagingToolbar({
+                    pageSize: perPage,
+                    store: accountStore
+            })
+        });
+        accountStore.load();
+
+        var main_panel = new Ext.Panel({
+            layout: 'fit',
+            frame: true,
+            border: false,
+            items: accountGrid
+        });
+
+        UI.activeTab.add(main_panel);
+        UI.activeTab.setTitle('Accounts');
+
+        UI.activeTab.doLayout();
+        UI.statusbar.clearStatus();
+    })();
+</script>

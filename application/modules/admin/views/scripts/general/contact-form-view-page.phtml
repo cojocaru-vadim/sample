@@ -1,0 +1,28 @@
+<script>
+    (function(){
+        var delWinMaxHeight	= 120;
+        var delWinMaxWidth	= 280;
+
+        <?php
+
+            echo "var html =\"".'<b>'.$this->contact[0]['name'].'</b>'.'";';
+            echo "html +=\"".'<br />'.'";';
+            echo "html +=\"".'Email: '.$this->contact[0]['email'].'";';
+            echo "html +=\"".'<br />'.'";';
+            echo "html +=\"".'Message: '.$this->contact[0]['email'].'";';
+        ?>
+
+        var main_panel = new Ext.Panel({
+            layout: 'fit',
+            frame: true,
+            border: false,
+            html: html
+        });
+
+        UI.activeTab.add(main_panel);
+        UI.activeTab.setTitle('Contact id: <?php echo $this->contact_id; ?>');
+
+        UI.activeTab.doLayout();
+        UI.statusbar.clearStatus();
+    })();
+</script>

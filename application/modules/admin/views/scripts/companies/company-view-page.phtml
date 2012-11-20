@@ -1,0 +1,40 @@
+<script>
+    (function(){
+        var delWinMaxHeight	= 120;
+        var delWinMaxWidth	= 280;
+
+        <?php
+            echo "var html =\""."<img src='". $this->baseUrl($this->company[0]['logo_img']) ."' /><br />".'";';
+            echo "html +=\"".'<b>'.$this->company[0]['name'].'</b>'.'";';
+            echo "html +=\"".'<br />'.'";';
+            echo "html +=\"".$this->translate('form-label-category').': '.$this->company[0]['subcat'].'";';
+            echo "html +=\"".'<br />'.'";';
+            echo "html +=\"".$this->company[0]['desc_ro_MD'].'";';
+            echo "html +=\"".'<br />'.'";';
+            echo "html +=\"".$this->translate('form-label-region').': '.$this->company[0]['region'].', '.$this->translate('form-label-locality').': '.$this->company[0]['locality'].', '.$this->translate('form-label-street').': '.$this->company[0]['street'].', '.$this->translate('form-label-house').': '.$this->company[0]['house'].', '.$this->translate('form-label-postcode').': '.$this->company[0]['postcode'].'";';
+            echo "html +=\"".'<br />'.'";';
+            echo "html +=\"".'Email: '.$this->company[0]['email'].'";';
+            echo "html +=\"".'<br />'.'";';
+            echo "html +=\"".'Web: '.$this->company[0]['web'].'";';
+            echo "html +=\"".'<br />'.'";';
+            echo "html +=\"".'Tel.: '.$this->company[0]['tel'].'";';
+            echo "html +=\"".'<br />'.'";';
+            echo "html +=\"".'Mob.: '.$this->company[0]['mob'].'";';
+            echo "html +=\"".'<br />'.'";';
+            echo "html +=\"".'Fax: '.$this->company[0]['fax'].'";';
+        ?>
+
+        var main_panel = new Ext.Panel({
+            layout: 'fit',
+            frame: true,
+            border: false,
+            html: html
+        });
+
+        UI.activeTab.add(main_panel);
+        UI.activeTab.setTitle('Company id: <?php echo $this->company_id; ?>');
+
+        UI.activeTab.doLayout();
+        UI.statusbar.clearStatus();
+    })();
+</script>

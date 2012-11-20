@@ -1,0 +1,68 @@
+<?php $categ = (isset($this->subcategories)) ? $this->subcategories[0]['cat_name'] : $this->subcat_name; ?>
+<?php $this->headTitle()->prepend($this->translate('company-in') . ' ' . $categ); ?>
+
+    <?php
+
+        if(isset($this->categories))
+        {
+            echo '<ul class="simple_grid">';
+            for($i = 0; $i < count($this->categories); $i++)
+            {
+                echo "<li>
+                    <a class='tab-links' href='".$this->url(array('categ' => $this->categories[$i]['cat_url'], 'page' => '1'), 'companies-categories')."'>".$this->categories[$i]['cat_name']." </a>
+                </li>";
+            }
+            echo '</ul>';
+        }
+
+        if(isset($this->subcategories))
+        {
+             echo '<h2>'.$this->subcategories[0]['cat_name'].'</h2>';
+             echo '<ul class="simple_grid">';
+             for($i = 0; $i < count($this->subcategories); $i++)
+             {
+                echo "<li>
+                    <a class='tab-links' href='".$this->url(array('categ' => $this->subcategories[$i]['cat_url'] , 'sub_categ' => $this->subcategories[$i]['subcat_url'], 'page' => '1'), 'companies-categories')."'>".$this->subcategories[$i]['subcat_name']." </a>
+                </li>";
+             }
+             echo '</ul>';
+        }
+
+        echo '<div class="clearfix"></div>';
+
+        if(isset($this->companies) && count($this->companies) > 0)
+        {
+
+        echo "<div class='box'>
+                <span class='box_title'>".$this->translate('company-in')." : {$categ}</span>
+                <div class='box_content'>";
+
+            echo '<ul class="product_grid">';
+            for($i = 0; $i < count($this->companies); $i++)
+            {
+                echo
+                        '<li><a class="product_logo" href="'.$this->url(array('company_url' => $this->companies[$i]['company_url']), 'company-view').'" ><img alt="'.htmlentities($this->companies[$i]['name'], ENT_QUOTES).'" src="'. $this->baseUrl($this->companies[$i]['logo_img']) .'" /></a>
+                            '. $this->companies[$i]['name'] .' <br />
+                             <a class="tab-links" href="'.$this->url(array('company_url' => $this->companies[$i]['company_url']), 'company-view').'">'.$this->translate('details').'</a>
+                        ';
+            }
+            echo '</ul>';
+            echo '<div class="clearfix"></div>';
+            echo '<ul id="pagination">';
+            echo /*$this->translate('pages').': '.*/$this->pages;
+            echo '</ul>';
+            
+
+        echo "</div>
+              </div>
+        ";
+
+
+        }elseif(isset($this->companies))
+        {
+            echo "<strong>".$this->translate('no-companies-for-category')."</strong><br /><br />
+                            <a class='header_login' style='color:#FFFFFF; width:240px;' href='". $this->url(array('controller' => 'companies', 'action' => 'add'), 'default', true)."'>" .$this->translate('add-company') . "</a>";
+
+
+        }
+    ?>

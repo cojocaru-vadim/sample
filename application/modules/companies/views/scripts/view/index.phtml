@@ -1,0 +1,139 @@
+<?php $this->headTitle()->prepend($this->company[0]['name']); ?>
+<link rel="stylesheet" href="<?php echo $this->baseUrl('css/galleriffic.css'); ?>" type="text/css" />
+<script type="text/javascript" src="<?php echo $this->baseUrl('js/jquery.galleriffic.js'); ?>"></script>
+<script type="text/javascript" src="<?php echo $this->baseUrl('js/jquery.opacityrollover.js'); ?>"></script>
+<script type="text/javascript">
+        document.write('<style>.noscript { display: none; }</style>');
+</script>
+
+
+
+
+<!-- AddThis Button BEGIN -->
+<div class="addthis_toolbox addthis_default_style addthis_32x32_style">
+<a class="addthis_button_preferred_1"></a>
+<a class="addthis_button_preferred_2"></a>
+<a class="addthis_button_preferred_3"></a>
+<a class="addthis_button_preferred_4"></a>
+<a class="addthis_button_compact"></a>
+<a class="addthis_counter addthis_bubble_style"></a>
+</div>
+<script type="text/javascript">var addthis_config = {"data_track_clickback":true};</script>
+<script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=ra-4de26f1e29297d13"></script>
+<!-- AddThis Button END -->
+<br />
+<?php
+//print_r($this->company);
+
+//print_r($this->companyImages);
+    echo '<div id="company_details">';
+    echo '<img alt="'.htmlentities($this->company[0]['name'], ENT_QUOTES).'"  src="'. $this->baseUrl($this->company[0]['logo_img']) .'" /><br />';
+    echo '<p>'.$this->translate('form-label-name').': <strong>'.$this->company[0]['name'].'</strong></p>';
+    echo '<p>'.$this->translate('form-label-category').': <strong>'.$this->company[0]['subcat'].'</strong></p>';
+    echo '<p>'.$this->company[0]['desc'].'</p>'; // in dependenta de limba sa-mi trimiti descrierea
+    echo '<p>'.$this->translate('form-label-region').': <strong>'.$this->company[0]['region'].'</strong>, '.$this->translate('form-label-locality').': <strong>'.$this->company[0]['locality'].'</strong>,<br /> '.$this->translate('form-label-street').': <strong>'.$this->company[0]['street'].'</strong>, '.$this->translate('form-label-house').': <strong>'.$this->company[0]['house'].'</strong>, '.$this->translate('form-label-postcode').': <strong>'.$this->company[0]['postcode'].'</strong></p>';
+    echo '<p>Email: <strong>'  .$this->company[0]['email'].'</strong></p>';
+    echo '<p>'. $this->translate('form-label-website').': <strong>' .$this->company[0]['web'].'</strong></p>';
+    echo '<p>'. $this->translate('form-label-telephone').': <strong>' .$this->company[0]['tel'].'</strong></p>';
+    echo '<p>'. $this->translate('form-label-mobile').': <strong>' .$this->company[0]['mob'].'</strong></p>';
+    echo '<p>'. $this->translate('form-label-fax').': <strong>' .$this->company[0]['fax'].'</strong></p>';
+    echo '</div>';
+?>
+
+
+
+
+<?php if(count($this->companyImages)): ?>
+                <div id="gallery" class="content">
+					<div id="controls" class="controls"></div>
+					<div class="slideshow-container">
+						<div id="loading" class="loader"></div>
+						<div id="slideshow" class="slideshow"></div>
+					</div>
+					<div id="caption" class="caption-container"></div>
+				</div>
+				<div id="thumbs" class="navigation">
+					<ul class="thumbs noscript">
+                                            <?php
+                                                for($i = 0 ; $i < count($this->companyImages); $i++)
+                                                {
+                                                    echo '
+                                                            <li>
+                                                                    <a class="thumb" name="leaf" href="/uploads/companies/'.$this->companyImages[$i]['company_id'].'/'.$this->companyImages[$i]['image_url'].'" title="'.htmlentities($this->company[0]['name'], ENT_QUOTES).'" width="500">
+                                                                            <img src="/uploads/companies/'.$this->companyImages[$i]['company_id'].'/'.$this->companyImages[$i]['thumb_url'].'"  alt="'.htmlentities($this->company[0]['name'], ENT_QUOTES).'" width="74"/>
+                                                                    </a>
+                                                                    <div class="caption">
+                                                                            <div class="download">
+                                                                                    <a href="/uploads/companies/'.$this->companyImages[$i]['company_id'].'/'.$this->companyImages[$i]['image_url'].'">'.$this->translate('slide-download').'</a>
+                                                                            </div>
+                                                                            <!--<div class="image-title">Image id: '.$this->companyImages[$i]['image_id'].'</div>-->
+                                                                            <!--<div class="image-desc">'.$this->translate('slide-description').'</div>-->
+                                                                    </div>
+                                                            </li>
+                                                          ';
+                                                }
+                                            ?>
+					</ul>
+
+					</div>
+<?php endif; ?>
+        
+				<div style="clear: both;"></div>
+
+
+
+    <script type="text/javascript">
+			jQuery(document).ready(function($) {
+				// We only want these styles applied when javascript is enabled
+				//$('div.navigation').css({'width' : '300px', 'float' : 'left'});
+				$('div.content').css('display', 'block');
+
+				// Initially set opacity on thumbs and add
+				// additional styling for hover effect on thumbs
+				var onMouseOutOpacity = 0.67;
+				$('#thumbs ul.thumbs li').opacityrollover({
+					mouseOutOpacity:   onMouseOutOpacity,
+					mouseOverOpacity:  1.0,
+					fadeSpeed:         'fast',
+					exemptionSelector: '.selected'
+				});
+
+				// Initialize Advanced Galleriffic Gallery
+				var gallery = $('#thumbs').galleriffic({
+					delay:                     2500,
+					numThumbs:                 15,
+					preloadAhead:              10,
+					enableTopPager:            true,
+					enableBottomPager:         true,
+					maxPagesToShow:            7,
+					imageContainerSel:         '#slideshow',
+					controlsContainerSel:      '#controls',
+					captionContainerSel:       '#caption',
+					loadingContainerSel:       '#loading',
+					renderSSControls:          true,
+					renderNavControls:         true,
+					playLinkText:              '<?php echo $this->translate('slide-play');?>',
+					pauseLinkText:             '<?php echo $this->translate('slide-pause');?>',
+					prevLinkText:              '<?php echo $this->translate('slide-prev_photo');?>',
+					nextLinkText:              '<?php echo $this->translate('slide-next_photo');?>',
+					nextPageLinkText:          '<?php echo $this->translate('slide-next_page');?>',
+					prevPageLinkText:          '<?php echo $this->translate('slide-prev_page');?>',
+					enableHistory:             false,
+					autoStart:                 false,
+					syncTransitions:           true,
+					defaultTransitionDuration: 900,
+					onSlideChange:             function(prevIndex, nextIndex) {
+						// 'this' refers to the gallery, which is an extension of $('#thumbs')
+						this.find('ul.thumbs').children()
+							.eq(prevIndex).fadeTo('fast', onMouseOutOpacity).end()
+							.eq(nextIndex).fadeTo('fast', 1.0);
+					},
+					onPageTransitionOut:       function(callback) {
+						this.fadeTo('fast', 0.0, callback);
+					},
+					onPageTransitionIn:        function() {
+						this.fadeTo('fast', 1.0);
+					}
+				});
+			});
+		</script>

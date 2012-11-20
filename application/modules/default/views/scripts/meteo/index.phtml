@@ -1,0 +1,113 @@
+<style type="text/css">
+
+    #meteo_container{
+        width: 100%;
+    }
+
+    #meteo_container table{
+        text-align: center;
+    }
+
+    /*#meteo_container table tr{
+        border: 1px solid #33569E;
+    }*/
+
+    #meteo_container table td{
+        border: 1px solid #E8E8E8;
+    }
+
+    tr.table_head{
+        background-color: #70E877;
+    }
+
+</style>
+<?php $this->headTitle()->prepend($this->pageTitle); ?>
+<div id="meteo_container">
+    <table cellpadding="10">
+        <tbody>
+<?php
+
+$currentDay = $today = date("Y-m-d"); //echo $today;
+$todayHead = false;
+
+
+
+foreach($this->meteoData as $toDateTime => $value){
+    $toDate = substr($toDateTime, 0, 10);
+
+    /*echo $toTome; echo " $today";
+    dump(strpos($toTome, $today) === false);
+    die;*/
+
+
+
+    if(strpos($toDateTime, $today)  === false){
+        //Its not TODAY
+
+        $weekDayindex = date('w', strtotime($toDateTime));
+        $formattedToDate = $this->translate($weekDayindex.'weekday') .',<br />'.substr($toDate, 8, 2) .' '. $this->translate(substr($toDate, 5, 2).'month');
+
+        if($toDate != $currentDay){
+             echo '
+                <tr class="table_head">
+                    <td>'.$formattedToDate.'</td>
+                    <td>'.$this->translate('meteo-condition').'</td>
+                    <td>'.$this->translate('temperature').' (&deg;C)</td>
+                    <td>'.$this->translate('precipitation').' (mm)</td>
+                    <td>'.$this->translate('pressure').' (mm/Hg)</td>
+                    <td>'.$this->translate('humidity').' (%)</td>
+                    <td>'.$this->translate('wind').'</td>
+                </tr>
+                ';
+            $currentDay = $toDate;
+        }
+
+        echo '
+            <tr>
+                <td>'.substr($toDateTime, 11, 5).'</td>
+                <td><img src="'.$value['image'].'" /><br />'.$value['condition'].'</td>
+                <td>'.$value['temperatureValue'].' &deg;C</td>
+                <td>'.$value['precipitationValue'].' mm</td>
+                <td>'.$value['pressureValue'].' mm/Hg</td>
+                <td>'.$value['humidity'].' %</td>
+                <td><img src="'.$this->baseUrl('img/icons/meteo/'.$value['windDirection']).'.gif" /><br />'. $value['windSpeed'] .'m/s</td>
+
+            </tr>
+            ';
+
+    }else{
+        //if(){}
+        //Its TODAY
+        $formattedToDate = $this->translate('today').',<br />'.substr($toDate, 8, 2) .' '. $this->translate(substr($toDate, 5, 2).'month');
+        if($todayHead === false){
+            echo '
+                <tr class="table_head">
+                    <td>'.$formattedToDate.'</td>
+                    <td>'.$this->translate('meteo-condition').'</td>
+                    <td>'.$this->translate('temperature').' (&deg;C)</td>
+                    <td>'.$this->translate('precipitation').' (mm)</td>
+                    <td>'.$this->translate('pressure').' (mm/Hg)</td>
+                    <td>'.$this->translate('humidity').' (%)</td>
+                    <td>'.$this->translate('wind').'</td>
+                </tr>
+                ';
+            $todayHead = true;
+        }
+        echo '
+            <tr>
+                <td>'.substr($toDateTime, 11, 5).'</td>
+                <td><img src="'.$value['image'].'" /><br />'.$value['condition'].'</td>
+                <td>'.$value['temperatureValue'].' &deg;C</td>
+                <td>'.$value['precipitationValue'].' mm</td>
+                <td>'.$value['pressureValue'].' mm/Hg</td>
+                <td>'.$value['humidity'].' %</td>
+                <td><img src="'.$this->baseUrl('img/icons/meteo/'.$value['windDirection']).'.gif" /><br />'. $value['windSpeed'] .'m/s</td>
+
+            </tr>
+            ';
+    }
+}
+?>
+        </tbody>
+    </table>
+</div>

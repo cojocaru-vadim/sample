@@ -1,0 +1,356 @@
+<?php $this->headTitle()->prepend($this->translate('add-company')); ?>
+<script type="text/javascript" src="/js/plugins/validate.js"></script>
+<script>
+    $(document).ready(function(){
+
+       ////////////////////////////////
+       ///// regions - localities /////
+       ////////////////////////////////
+       
+       $.ajax({
+          url: "/companies/utils/get-regions",
+          type: "POST",
+          success: function(data) {
+              var localities = $.parseJSON(data);
+              var options = '';
+              for(var i = 0; i < localities.length; i++)
+                  {
+                      options += '<option value="' + localities[i].region_id + '">' + localities[i].name + '</option>';
+                  }
+              $("#regions").html(options);
+              $("#regions").change();
+          }
+        });
+        $('#regions').change(function(s){
+            var region_id = $(this).val();
+            $.ajax({
+              url: "/companies/utils/get-localities",
+              type: "POST",
+              data: "region_id="+region_id,
+              success: function(data) {
+                  var regions = $.parseJSON(data);
+                  var options = '';
+                  for(var i = 0; i < regions.length; i++)
+                      {
+                          options += '<option value="' + regions[i].locality_id + '">' + regions[i].name + '</option>';
+                      }
+                  $("#localities").html(options);
+              }
+            });
+        });
+
+       //////////////////////////////////////
+       ///// categories - subcategories /////
+       //////////////////////////////////////
+
+        $.ajax({
+          url: "/companies/utils/get-categories",
+          type: "POST",
+          success: function(data) {
+              var categories = $.parseJSON(data);
+              var options = '';
+              options += '<option value="0"><?php echo $this->translate('form-message-category-blank');?></option>';
+              for(var i = 0; i < categories.length; i++)
+                  {
+                      options += '<option value="' + categories[i].category_id + '">' + categories[i].name + '</option>';
+                  }
+              $("#category").html(options);
+          }
+        });
+        $('#category').change(function(s){
+            var category_id = $(this).val();
+            $.ajax({
+              url: "/companies/utils/get-subcategories",
+              type: "POST",
+              data: "category_id="+category_id,
+              success: function(data) {
+                  var subcategories = $.parseJSON(data);
+                  var options = '';
+                  options += '<option value="0"><?php echo $this->translate('form-message-subcategory-blank');?></option>';
+                  for(var i = 0; i < subcategories.length; i++)
+                      {
+                          options += '<option value="' + subcategories[i].subcategory_id + '">' + subcategories[i].name + '</option>';
+                      }
+                  $("#subcategory").html(options);
+              }
+            });
+        });
+
+        /////////////////////////
+        ///// submit form  //////
+        /////////////////////////
+        $('#submit-gen-form').click(function(){
+            $('#gen-form').submit();
+        });
+
+        /////////////////////////
+        ///// validation   //////
+        /////////////////////////
+        $.validator.addMethod("validCategory", function(value, element) {
+              return value > 0;
+        }, "<br /><font color='red'><?php echo $this->translate('form-message-category-required');?></font>");
+
+        $.validator.addMethod("validSubCategory", function(value, element) {
+              return value > 0;
+        }, "<br /><font color='red'><?php echo $this->translate('form-message-subcategory-required');?></font>");
+
+        $("#gen-form").validate({
+            rules: {
+                name: "required",// simple rule, converted to {required:true}
+                email: {// compound rule
+                    required: true,
+                    email: true
+                },
+                category_id : {
+                    validCategory : true
+                },
+                subcategory_id : {
+                    validSubCategory : true
+                }
+            },
+            messages: {
+                name: "<br /><font color='red'><?php echo $this->translate('form-message-name-required');?></font>",
+                email: "<br /><font color='red'><?php echo $this->translate('form-message-email-required');?></font>",
+                desc_ro_MD: "<br /><font color='red'><?php echo $this->translate('form-message-description-required');?></font>"
+            }
+        });
+    });
+
+    var img_count = 0;
+
+    /////////////////////////
+    ///// upload button /////
+    /////////////////////////
+
+    function fileClick(t)
+    {
+        //$(t).next().children('input').val($(t).val());
+        $('#upload-logo-label').css("display", "none");
+        $('#f2_upload_process').html('<img src="/images/loading-spinner.gif" /><i><?php echo $this->translate('form-message-loading');?></i> '+$(t).val());
+        $('#logoForm').submit();;
+    }
+
+    function startLogoUpload()
+    {
+        $('#f2_upload_process').css("display", "block");
+        return true;
+    }
+
+    function stopLogoUpload(success, path)
+    {
+        if(success == 1)
+            {
+                console.log(path);
+                $('#uploaded-logo-container').append('<div id="logo_container"><img src="/'+path+'" /><button class="upload-btn" onClick="removeLogo('+"'"+path+"'"+', '+img_count+')"><?php echo $this->translate('form-button-remove');?></button><br /></div>');
+                img_count++;
+            }
+        $('#f2_upload_process').css("display", "none");
+        return true;
+    }
+
+    function removeLogo(path, ind)
+    {
+        $.ajax({
+          url: "/companies/add/remove-logo-images",
+          type: "POST",
+          data: "path="+path,
+          success: function() {
+              $('#uploaded-logo-container').html("");
+              $('#upload-logo-label').css("display", "block");
+          }
+        });
+    }
+
+    /////////////////////////
+    ///// file upload ///////
+    /////////////////////////
+
+    function startUpload()
+    {
+        $('#f1_upload_process').css("display", "block");
+        return true;
+    }
+
+    function stopUpload(success, path)
+    {
+        if(success == 1)
+            {
+                $('#uploaded-container').append('<div id="img_container_'+img_count+'"><img src="/'+path+'" /><button class="upload-btn" onClick="removePic('+"'"+path+"'"+', '+img_count+')"><?php echo $this->translate('form-button-remove');?></button><br /></div>');
+                img_count++;
+            }
+        $('#f1_upload_process').css("display", "none");
+        $('#upload-label').css("display", "block");
+        return true;
+    }
+
+    function fileChanged(t)
+    {
+        $('#upload-label').css("display", "none");
+        $('#f1_upload_process').html('<img src="/images/loading-spinner.gif" /><i><?php echo $this->translate('form-message-loading');?></i> '+$(t).val());
+        $('#fileForm').submit();
+    }
+
+    ///////////// picture remover
+    function removePic(path, ind)
+    {
+        $.ajax({
+          url: "/companies/add/remove-images",
+          type: "POST",
+          data: "path="+path,
+          success: function() {
+              $('#img_container_'+ind).css("display", "none");
+          }
+        });
+    }
+</script>
+    <?php
+        if(count($this->messages) > 0)
+        {
+            echo '<div class="form_error_message"><ul>';
+            for($i = 0; $i < count($this->messages); $i++)
+            {
+                echo '<li>'.$this->messages[$i].'</li>';
+            }
+            echo '</ul></div><br />';
+        }
+    ?>
+<div class="form-cell">
+<div id="f2_upload_process" style="display: none; margin-left: 10px;">
+</div>
+<div id="uploaded-logo-container" style="margin-left: 10px;">
+</div>
+                <form id="logoForm" onsubmit="startLogoUpload();" target="upload_target" enctype="multipart/form-data" method="post" action="/companies/add/save-logo-images">
+                        <div id="upload-logo-label">
+                            <label for="logo_img"><?php echo $this->translate('form-label-atach-logo');?>:</label>
+                            <div class="fileinputs">
+                                    <input id="logo_img" onChange="fileClick(this);" type="file" class="file" name="logo_img" />
+                                    <div class="fakefile">
+                                            <input class="form-text form-field" />
+                                            <button class="upload-btn" type="button"><?php echo $this->translate('form-button-select-file');?></button>
+                                    </div>
+                            </div>
+                        </div>
+                </form>
+</div>
+<form id="gen-form" action="/companies/add" enctype="multipart/form-data" method="post">
+            <div class="form-cell">
+                <label for="name"><?php echo $this->translate('form-label-name');?>:</label>
+                <br />
+                <input id="name" type="text" name="name" size="20" class="form-text form-field" style="width: 200px;">
+            </div>
+            <div class="clearfix"></div>
+            <br />
+            <div class="form-row">
+                <div class="form-cell">
+                    <label for="desc_ro_MD"><?php echo $this->translate('form-label-desc-ro');?>:</label>
+                    <br />
+                    <textarea id="desc_ro_MD" name="desc_ro_MD" style="height: 120px; width:170px;" class="form-textarea form-field"></textarea>
+                </div>
+                <div class="form-cell">
+                    <label for="desc_en_US"><?php echo $this->translate('form-label-desc-en');?>:</label>
+                    <br />
+                    <textarea id="desc_en_US" name="desc_en_US" style="height: 120px; width:170px;" class="form-textarea form-field"></textarea>
+                </div>
+                <div class="form-cell">
+                    <label for="desc_ru_RU"><?php echo $this->translate('form-label-desc-ru');?>:</label>
+                    <br />
+                    <textarea id="desc_ru_RU" name="desc_ru_RU" style="height: 120px; width:170px;" class="form-textarea form-field"></textarea>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-cell">
+                    <label for="category"><?php echo $this->translate('form-label-category');?>:</label>
+                    <br />
+                    <select class="form-select" id="category" name="category_id"></select>
+                </div>
+                <div class="form-cell">
+                    <label for="subcategory"><?php echo $this->translate('form-label-subcategory');?>:</label>
+                    <br />
+                    <select class="form-select" id="subcategory" name="subcategory_id"><option value="0"><?php echo $this->translate('form-message-subcategory-blank');?></option></select>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-cell">
+                    <label for="regions"><?php echo $this->translate('form-label-region');?>:</label>
+                    <br />
+                    <select class="form-select" id="regions" name="region_id"></select>
+                </div>
+                <div class="form-cell">
+                    <label for="localities"><?php echo $this->translate('form-label-locality');?>:</label>
+                    <br />
+                    <select class="form-select" id="localities" name="locality_id"><option value="0">Select Locality</option></select>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-cell">
+                    <label for="web"><?php echo $this->translate('form-label-website');?>:</label>
+                    <br />
+                    <input id="web" type="text" name="web" class="form-text form-field">
+                </div>
+                <div class="form-cell">
+                    <label for="email">Email:</label>
+                    <br />
+                    <input id="email" type="text" name="email" class="form-text form-field">
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-cell">
+                    <label for="tel"><?php echo $this->translate('form-label-telephone');?>:</label>
+                    <br />
+                    <input id="tel" type="text" name="tel" class="form-text form-field">
+                </div>
+                <div class="form-cell">
+                    <label for="mob"><?php echo $this->translate('form-label-mobile');?>:</label>
+                    <br />
+                    <input id="mob" type="text" name="mob" class="form-text form-field">
+                </div>
+                <div class="form-cell">
+                    <label for="fax"><?php echo $this->translate('form-label-fax');?>:</label>
+                    <br />
+                    <input id="fax" type="text" name="fax" class="form-text form-field">
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-cell">
+                    <label for="street"><?php echo $this->translate('form-label-street');?>:</label>
+                    <br />
+                    <input id="street" type="text" name="street" class="form-text form-field">
+                </div>
+                <div class="form-cell">
+                    <label for="house"><?php echo $this->translate('form-label-house');?>:</label>
+                    <br />
+                    <input id="house" type="text" name="house" class="form-text form-field">
+                </div>
+                <div class="form-cell">
+                    <label for="postcode"><?php echo $this->translate('form-label-postcode');?>:</label>
+                    <br />
+                    <input id="postcode" type="text" name="postcode" class="form-text form-field">
+                </div>
+                <div class="clearfix"></div>
+            </div>
+</form>
+<div id="uploaded-container" style="margin-left: 10px;">
+</div>
+<div id="f1_upload_process" style="display: none; margin-left: 10px;">
+</div>
+<form id="fileForm" onsubmit="startUpload();" target="upload_target" enctype="multipart/form-data" method="post" action="/companies/add/save-images">
+    <div class="form-cell" id="upload-label">
+        <label for="company_img"><?php echo $this->translate('form-label-atach-image');?>:</label>
+        <div class="fileinputs">
+                <input id="company_img" onChange="fileChanged(this);" type="file" class="file" name="company_img" />
+                <div class="fakefile">
+                        <input class="form-text form-field" />
+                        <button class="upload-btn" type="button"><?php echo $this->translate('form-button-select-file');?></button>
+                </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</form>
+<br />
+<button id="submit-gen-form" class="upload-btn" name="submit" value="Submit" style="margin-left: 10px;"><?php echo $this->translate('form-button-submit');?></button>
+<iframe id="upload_target" name="upload_target" src="#" style="width:0;height:0;border:0px solid #fff;"></iframe>

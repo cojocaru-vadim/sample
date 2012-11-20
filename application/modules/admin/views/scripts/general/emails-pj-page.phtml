@@ -1,0 +1,147 @@
+<script>
+        (function(){
+            var perPage = <?php echo $this->perPage; ?>;
+            var winMaxHeight	= 130;
+            var winMaxWidth	= 300;
+            var windowActive	= false;
+
+            var emailStore = new Ext.data.JsonStore({
+                url: 'admin/general/get-pj-emails',
+                fields: ['email'],
+                root: "items",
+                id: 'id',
+                totalProperty: 'total'
+            });
+            emailStore.load();
+
+            var emailGrid = new Ext.grid.GridPanel({
+                store: emailStore,
+                loadMask: true,
+                columns: [
+                    {header: "Email", dataIndex: 'email'}
+                ],
+                viewConfig: {
+                    autoFill: true,
+                    forceFit: true
+                },
+                bbar: new Ext.PagingToolbar({
+			pageSize: perPage,
+			store: emailStore
+		})
+            });
+
+            var emailForm = new Ext.form.FormPanel ({
+		id: 'email-form',
+		baseCls: 'x-plain',
+		bodyStyle: 'padding: 10px;',
+		frame: true,
+		labelWidth: 50,
+		waitMsgTarget: true,
+		monitorValid: true,
+		items: [{
+			xtype: 'textfield',
+			fieldLabel: 'Email',
+			name: 'email',
+			id: 'email',
+                        allowBlank: false,
+			vtype: 'email',
+			anchor: '100%'
+		}]
+            });
+
+            var addWindow = new Ext.Window ({
+		id: 'add-window',
+		iconCls: 'add-window',
+		title: 'Add Email',
+		border: true,
+		width: winMaxWidth,
+		height: winMaxHeight,
+		minWidth: winMaxWidth,
+		minHeight: winMaxHeight,
+		layout: 'form',
+		plain: true,
+		bodyStyle: 'padding: 10px;',
+		modal: true,
+		closeAction: 'hide',
+		items: [emailForm],
+		listeners: {
+			resize: function () {
+				if (windowActive) {
+					if (addWindow.getSize().height > winMaxHeight) {
+						addWindow.setSize(addWindow.getSize().width, winMaxHeight);
+					}
+				}
+			},
+			activate: function () {
+				windowActive = true;
+			},
+			hide: {
+				fn : function(){
+					windowActive = false;
+				}
+			}
+		}
+            });
+
+            var buttonSubmit = emailForm.addButton ({
+                text: 'Save',
+                type: 'submit',
+                cls: 'x-btn-text-icon',
+                icon: 'images/icons/accept.png',
+                timeout: 10,
+                formBind: true,
+                handler: function() {
+                    emailForm.getForm().submit ({
+                            timeout: 30000,
+                            success: function(form,action) {
+                                    addWindow.hide();
+                                    emailStore.load();
+                                    UI.notify("Success", action.result.message);
+                            },
+                            failure: function(form,action) {
+                                    Ext.Msg.alert("Warning", action.result.message);
+                            },
+                            url: 'admin/general/add-pj-email',
+                            waitMsg: 'Saving...'
+                    });
+                }
+            });
+
+            var buttonCancel = emailForm.addButton ({
+                text: 'Cancel',
+                cls: 'x-btn-text-icon',
+                icon: 'images/icons/cancel.png',
+                handler: function() {
+                    addWindow.hide();
+                }
+            });
+
+            var addMail = function() {
+                addWindow.show();
+                emailForm.getForm().reset();
+            };
+
+            var addBtn = new Ext.Toolbar.Button({
+                cls: 'x-btn-text-icon',
+                icon: 'images/icons/add.png',
+                text: 'Add Email',
+                handler: addMail
+            });
+
+            var main_panel = new Ext.Panel({
+                layout: 'fit',
+                frame: false,
+                border: false,
+                items: [emailGrid],
+                tbar: new Ext.Toolbar({
+                    items: [addBtn]
+                })
+            });
+
+            UI.activeTab.add(main_panel);
+            UI.activeTab.setTitle('Persoane juridice');
+
+            UI.activeTab.doLayout();
+            UI.statusbar.clearStatus();
+        })();
+</script>

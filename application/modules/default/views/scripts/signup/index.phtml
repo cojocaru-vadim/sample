@@ -1,0 +1,74 @@
+<?php $this->headTitle()->prepend($this->translate('signup')); ?>
+<script type="text/javascript" src="/js/plugins/validate.js"></script>
+<script>
+    $(document).ready(function(){
+    $.validator.addMethod("validatePassword", function(value, element) {
+          if(value.length < 4)
+              {
+                  return false;
+              }
+          return true;
+
+    }, "<br /><font color='red'><?php echo $this->translate('form-message-password-required');?></font>");
+
+    $.validator.addMethod("validateRePassword", function(value, element) {
+          var pass = $('#signup_password').val();
+          if(value != pass)
+              {
+                  return false;
+              }
+          return true;
+
+    }, "<br /><font color='red'><?php echo $this->translate('form-message-password-not-match');?></font>");
+
+    $("#gen-form").validate({
+            rules: {
+                email: {
+                    required: true,
+                    email: true
+                },
+                password: {
+                    validatePassword: true
+                },
+                repassword: {
+                    validateRePassword: true
+                }
+            },
+            messages: {
+                email: "<br /><font color='red'><?php echo $this->translate('form-message-email-required');?></font>"
+            }
+        });
+    });
+</script>
+<?php
+        if(count($this->messages) > 0)
+        {
+            echo '<div class="form_error_message"><ul>';
+            for($i = 0; $i < count($this->messages); $i++)
+            {
+                echo '<li>'.$this->messages[$i].'</li>';
+            }
+            echo '</ul></div><br />';
+        }
+    ?>
+<form id="gen-form" action="/signup" method="post">
+        <div class="form-cell">
+            <label for="email">Email:</label>
+            <br />
+            <input id="email" type="text" name="email" class="form-text form-field">
+        </div>
+        <div class="clearfix"></div>
+        <div class="form-cell">
+            <label for="signup_password"><?php echo $this->translate('password'); ?>:</label>
+            <br />
+            <input id="signup_password" type="password" name="password" class="form-text form-field">
+        </div>
+        <div class="clearfix"></div>
+        <div class="form-cell">
+            <label for="repassword"><?php echo $this->translate('retype-password'); ?>:</label>
+            <br />
+            <input id="repassword" type="password" name="repassword" class="form-text form-field">
+        </div>
+        <div class="clearfix"></div>
+        <button class="upload-btn" name="submit" value="Submit" style="margin-left: 10px;"><?php echo $this->translate('create');?></button>
+</form>

@@ -1,0 +1,35 @@
+<?php $this->headTitle()->prepend($this->translate('main-page')); ?>
+<?php
+        echo "<div class='box'>
+                <span class='box_title'>".$this->translate('recent-companies')."</span>
+                <div class='box_content'>";
+
+            echo '<ul class="product_grid">';
+            for($i = 0; $i < count($this->companies); $i++)
+            {
+                echo
+                        '<li><a class="product_logo" href="'.$this->url(array('company_url' => $this->companies[$i]['company_url']), 'company-view').'" ><img alt="'.htmlentities($this->companies[$i]['name'], ENT_QUOTES).'" src="'. $this->baseUrl($this->companies[$i]['logo_img']) .'" /></a>
+                            '. $this->companies[$i]['name'] .' <br />
+                             <a class="tab-links" href="'.$this->url(array('company_url' => $this->companies[$i]['company_url']), 'company-view').'">'.$this->translate('details').'</a>
+                        ';
+            }
+            echo '</ul>';
+            echo '<div class="clearfix"></div>';
+        echo "</div>
+              </div>
+        ";
+?>
+
+
+<!--<div class="box">
+    <span class="box_title">Vip companies</span>
+    <div class="box_content">
+        <p>Content</p>
+    </div>
+</div>
+<div class="box">
+    <span class="box_title">Top companies</span>
+    <div class="box_content">
+        <p>Content</p>
+    </div>
+</div>-->

@@ -1,0 +1,312 @@
+<script>
+    (function(){
+        var winMaxHeight	= 300;
+        var winMaxWidth	        = 400;
+        var windowActive	= false;
+        var delWinMaxHeight	= 120;
+        var delWinMaxWidth	= 280;
+        var perPage             = <?php echo $this->perPage; ?>;
+
+        // for description, we need panel from bottom, and template for that
+
+        var companyStore = new Ext.data.JsonStore({
+            url: 'admin/companies/company-list',
+            fields: ['company_id', 'account_email', 'email', 'region_name', 'cat_name', 'creation_date', 'status'],
+            root: "items",
+            id: 'id',
+            totalProperty: 'total'
+        });
+
+        function statusRenderer(value){
+            var output = "";
+            switch(value)
+            {
+                case '0': output = "new"; break;
+                case '1': output = "published"; break;
+            }
+            return output;
+        }
+
+        var actionsPlugin = new Ext.ux.grid.RowActions({
+            header:'Actions'
+            ,autoWidth:false
+            ,width: 300
+            ,actions:[{
+                            iconCls: 'company-publish'
+                            ,tooltip: 'Publish'
+                            ,text: 'Publish'
+                            ,style: 'background-image:url(/images/icons/page_add.png) ! important; color: blue'
+                    },{
+                            iconCls: 'company-view'
+                            ,tooltip: 'View'
+                            ,text: 'View'
+                            ,style: 'background-image:url(/images/icons/zoom_in.png) ! important; color: blue'
+                    }]
+            ,callbacks:{
+                    'company-publish':function(grid, record, action, row, col) {
+                            publishCompanies();
+                    },
+                    'company-view':function(grid, record, action, row, col) {
+                            goToView();
+                    }
+            }
+    });
+
+        var companyGrid = new Ext.grid.GridPanel({
+            store: companyStore,
+            loadMask: true,
+            columns: [
+                {header: "ID", width: 30,  dataIndex: 'company_id'},
+                {header: "Account Email", dataIndex: 'account_email'},
+                {header: "Email", dataIndex: 'email'},
+                {header: "Region", dataIndex: 'region_name'},
+                {header: "Category", dataIndex: 'cat_name'},
+                {header: "Creation Date", dataIndex: 'creation_date'},
+                {header: "Status", dataIndex: 'status', renderer:statusRenderer},
+                actionsPlugin
+            ],
+            viewConfig: {
+                autoFill: true,
+                forceFit: true
+            },
+            listeners: {
+                celldblclick: function() {
+                        goToView();
+                }
+            },
+            plugins: [actionsPlugin],
+            bbar: new Ext.PagingToolbar({
+                    pageSize: perPage,
+                    store: companyStore
+            })
+        });
+
+        var catStore=new Ext.data.JsonStore({
+            url: 'admin/companies/get-categories-for-subcat',
+            fields: ['category_id', 'cat_name']
+        });
+        catStore.load();
+
+        catStore.on('load', function(t,r){
+            catStore.insert(0, new Ext.data.Record({'category_id':'0','cat_name':'Select Category'}));
+            catCombo.setValue("0");
+            catCombo.fireEvent('select',catCombo);
+        });
+
+        var catCombo = new Ext.form.ComboBox({
+            store: catStore,
+            id: 'category-combo',
+            name: 'cat_name',
+            hiddenName: 'category_id',
+            displayField: 'cat_name',
+            valueField: 'category_id',
+            anchor: '90%',
+            editable: false,
+            mode: 'local',
+            forceSelection: true,
+            triggerAction: 'all',
+            fieldLabel: 'Category',
+            emptyText: 'Select category',
+            selectOnFocus: true
+        });
+
+        catCombo.on('select', function(t){
+            subcatCombo.reset();
+            subcatStore.baseParams.cat_id = t.getValue();
+            subcatStore.load();
+        });
+
+        var subcatStore=new Ext.data.JsonStore({
+            url: 'admin/companies/get-subcat-for-combo',
+            fields: ['subcategory_id', 'subcat_name']
+        });
+
+        subcatStore.on('load', function(t,r){
+            subcatStore.insert(0, new Ext.data.Record({'subcategory_id':'0','subcat_name':'Select Subcategory'}));
+            subcatCombo.setValue("0");
+            subcatCombo.fireEvent('select',subcatCombo);
+        });
+
+        var subcatCombo = new Ext.form.ComboBox({
+            store: subcatStore,
+            id: 'subcategory-combo',
+            name: 'subcat_name',
+            hiddenName: 'hsubcategory_id',
+            displayField: 'subcat_name',
+            valueField: 'subcategory_id',
+            anchor: '90%',
+            editable: false,
+            mode: 'local',
+            forceSelection: true,
+            triggerAction: 'all',
+            fieldLabel: 'Subcategory',
+            emptyText: 'Select subcategory',
+            selectOnFocus: true
+        });
+
+        subcatCombo.on('select', function(t){
+            companyStore.baseParams.cat_id = catCombo.getValue();
+            companyStore.baseParams.subcat_id = t.getValue();
+            companyStore.load();
+        });
+
+        var statusStore=new Ext.data.JsonStore({
+            url: 'admin/companies/get-company-statuses',
+            fields: ['status', 'name']
+        });
+        statusStore.load();
+
+        statusStore.on('load', function(t,r){
+            statusStore.insert(0, new Ext.data.Record({'status':'none','name':'Select Type'}));
+            statusCombo.setValue("none");
+        });
+
+        var statusCombo = new Ext.form.ComboBox({
+            store: statusStore,
+            id: 'status-combo',
+            name: 'status_name',
+            hiddenName: 'status_id',
+            displayField: 'name',
+            valueField: 'status',
+            anchor: '90%',
+            editable: false,
+            mode: 'local',
+            forceSelection: true,
+            triggerAction: 'all',
+            fieldLabel: 'Status',
+            emptyText: 'Select type',
+            selectOnFocus: true
+        });
+
+        statusCombo.on('select', function(t){
+            var stat = t.getValue();
+            if(stat == "none")
+            {
+                companyStore.baseParams = {cat_id: catCombo.getValue(), subcat_id: subcatCombo.getValue() };
+                companyStore.load();
+            }else
+            {
+                companyStore.baseParams.status = t.getValue();
+                companyStore.load();
+            }
+        });
+
+        /////////////////////// PUBLISH WINDOW /////////////////////////
+        var publishFormPanel = new Ext.form.FormPanel ({
+                name: 'publish-form-panel',
+                baseCls: 'x-plain',
+                bodyStyle: 'padding: 10px;',
+                waitMsgTarget: true,
+                frame: true,
+                items: [{
+                        xtype: 'hidden',
+                        name: 'ids'
+                }, {
+                        xtype: 'label',
+                        text: 'Are you sure you want to publish?'
+                }]
+        })
+
+        var publishWindow = new Ext.Window ({
+                id: 'publish-window',
+                iconCls: 'publish-window',
+                title: 'Publish',
+                border: true,
+                width: delWinMaxWidth,
+                height: delWinMaxHeight,
+                minWidth: delWinMaxWidth,
+                minHeight: delWinMaxHeight,
+                resizable: false,
+                layout: 'form',
+                plain: true,
+                bodyStyle: 'padding: 10px;',
+                buttonAlign: 'center',
+                modal: true,
+                closeAction: 'hide',
+                items: [ publishFormPanel ]
+        });
+
+        var submitPublish = publishFormPanel.addButton ({
+                text: 'Publish',
+                type: 'submit',
+                timeout: 10,
+                cls: 'x-btn-text-icon',
+                icon: 'images/icons/accept.png',
+                handler: function() {
+                        publishFormPanel.getForm().submit ({
+                                timeout: 30000,
+                                success: function(form,action) {
+                                        publishWindow.hide();
+                                        companyStore.load();
+                                        UI.notify("Success", action.result.message);
+                                },
+                                failure: function(form,action) {
+                                        Ext.Msg.alert("Warning", action.result.message);
+                                },
+                                url: 'admin/companies/publish',
+                                waitMsg: 'Publishing...'
+                        });
+                }
+        });
+
+        var cancelPublish = publishFormPanel.addButton ({
+                text: 'Cancel',
+                cls: 'x-btn-text-icon',
+                icon: 'images/icons/cancel.png',
+                handler: function() {
+                        publishWindow.hide();
+                }
+        });
+        /////////////////////// END PUBLISH WINDOW /////////////////////////
+
+        var publishCompanies = function(){
+            var sm = companyGrid.getSelectionModel();
+            var selectedRole = sm.getSelections();
+            var count = sm.getCount();
+
+            var a = [];
+            for(var i = 0; i < count; i++){
+                    a.push(selectedRole[i].data.company_id);
+            }
+            publishWindow.show();
+            publishFormPanel.getForm().findField('ids').setValue(a.toString());
+
+            //UI.mainPanel.load('admin/companies/company-view-page/company_id/'+selectedRole.data.company_id);
+        };
+
+        var goToView = function(){
+            var sm = companyGrid.getSelectionModel();
+            var selectedRole = sm.getSelected();
+            UI.mainPanel.load('admin/companies/company-view-page/company_id/'+selectedRole.data.company_id);
+        };
+
+        var publishButton = new Ext.Toolbar.Button({
+            cls: 'x-btn-text-icon',
+            icon: '/images/icons/page_add.png',
+            text: 'Publish',
+            handler: publishCompanies,
+            disabled: true
+        });
+        
+        companyGrid.getSelectionModel().on('selectionchange', function() {
+                publishButton.setDisabled(this.selections.length == 0);
+                return true;
+        });
+
+        var main_panel = new Ext.Panel({
+            layout: 'fit',
+            frame: false,
+            border: false,
+            items: [companyGrid],
+            tbar: new Ext.Toolbar({
+                items: [catCombo,subcatCombo,statusCombo,'-',publishButton]
+            })
+        });
+
+        UI.activeTab.add(main_panel);
+        UI.activeTab.setTitle('Companies');
+
+        UI.activeTab.doLayout();
+        UI.statusbar.clearStatus();
+    })();
+</script>

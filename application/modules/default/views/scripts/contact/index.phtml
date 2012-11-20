@@ -1,0 +1,60 @@
+<?php $this->headTitle()->prepend($this->translate('contact-us')); ?>
+<script type="text/javascript" src="/js/plugins/validate.js"></script>
+<script>
+    $(document).ready(function(){
+    $("#gen-form").validate({
+            rules: {
+                email: {
+                    required: true,
+                    email: true
+                },
+                name: {
+                    required: true
+                },
+                message: {
+                    required: true
+                }
+            },
+            messages: {
+                email: "<br /><font color='red'><?php echo $this->translate('form-message-email-required');?></font>",
+                name: "<br /><font color='red'><?php echo $this->translate('name-required');?></font>",
+                message: "<br /><font color='red'><?php echo $this->translate('message-required');?></font>"
+            }
+        });
+    });
+</script>
+<?php
+        if(count($this->messages) > 0)
+        {
+            echo '<div class="form_error_message"><ul>';
+            for($i = 0; $i < count($this->messages); $i++)
+            {
+                echo '<li>'.$this->messages[$i].'</li>';
+            }
+            echo '</ul></div><br />';
+        }
+    ?>
+<p>
+<?php echo $this->translate('contact-text'); ?>
+</p>
+<form id="gen-form" action="/contact" method="post">
+        <div class="form-cell">
+            <label for="email">Email:</label>
+            <br />
+            <input id="email" type="text" name="email" class="form-text form-field">
+        </div>
+        <div class="clearfix"></div>
+        <div class="form-cell">
+            <label for="name"><?php echo $this->translate('your-name'); ?>:</label>
+            <br />
+            <input id="name" type="text" name="name" class="form-text form-field">
+        </div>
+        <div class="clearfix"></div>
+        <div class="form-cell">
+            <label for="message"><?php echo $this->translate('message'); ?>:</label>
+            <br />
+            <textarea id="message" rows="10" cols="45" type="textarea" name="message" class="form-area"></textarea>
+        </div>
+        <div class="clearfix"></div>
+        <button class="upload-btn" name="submit" value="Submit" style="margin-left: 10px;"><?php echo $this->translate('send');?></button>
+</form>

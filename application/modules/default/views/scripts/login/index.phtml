@@ -1,0 +1,27 @@
+<?php $this->headTitle()->prepend($this->translate('login')); ?>
+<?php
+if(count($this->messages) > 0)
+        {
+            echo '<div class="form_error_message"><ul>';
+            for($i = 0; $i < count($this->messages); $i++)
+            {
+                echo '<li>'.$this->messages[$i].'</li>';
+            }
+            echo '</ul></div><br />';
+        }
+    ?>
+<form id="gen-form" action="/login" method="post">
+        <div class="form-cell">
+            <label for="email">Email:</label>
+            <br />
+            <input id="email" type="text" name="email" class="form-text form-field">
+        </div>
+        <div class="clearfix"></div>
+        <div class="form-cell">
+            <label for="password"><?php echo $this->translate('password'); ?>:</label>
+            <br />
+            <input id="password" type="password" name="password" class="form-text form-field">
+        </div>
+        <div class="clearfix"></div>
+        <button class="upload-btn" name="submit" value="Submit" style="margin-left: 10px;"><?php echo $this->translate('login');?></button>
+</form>

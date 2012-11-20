@@ -1,0 +1,333 @@
+    <script>
+        (function()
+        {
+            var winMaxHeight	= 300;
+            var winMaxWidth	= 400;
+            var windowActive	= false;
+            var delWinMaxHeight	= 120;
+            var delWinMaxWidth	= 280;
+            var perPage         = <?php echo $this->perPage; ?>;
+
+            var reader = new Ext.data.JsonReader({
+                root:'items',
+                totalProperty: 'total',
+                sortInfo: {
+                    field: 'cat_name',
+                    direction: "ASC"
+                },
+                fields: ['subcategory_id', 'name_en_US', 'name_ro_MD', 'name_ru_RU', 'cat_name', 'category_id']
+            });
+
+            var subcategoryStore = new Ext.data.GroupingStore({
+                url: 'admin/companies/get-subcategories',
+                reader: reader,
+                groupField:'cat_name',
+                sortInfo: {
+                    field: 'cat_name',
+                    direction: 'ASC'
+                },
+                id: 'id'
+            });
+            subcategoryStore.load();
+
+            var subcategoryGrid = new Ext.grid.GridPanel({
+                store: subcategoryStore,
+                loadMask: true,
+                columns: [
+                    {header: "ID",  dataIndex: 'id', hideable: false, hidden: true},
+                    {header: "Name EN", dataIndex: 'name_en_US'},
+                    {header: "Name RO", dataIndex: 'name_ro_MD'},
+                    {header: "Name RU", dataIndex: 'name_ru_RU'},
+                    {header: "Category", dataIndex: 'cat_name'},
+                    {header: "CAT_ID",  dataIndex: 'category_id', hideable: false, hidden: true}
+                ],
+                viewConfig: {
+                    autoFill: true,
+                    forceFit: true
+                },
+                listeners: {
+                    celldblclick: function() {
+                            editSubcat();
+                    }
+                },
+                view: new Ext.grid.GroupingView({
+                    forceFit:true,
+                    showGroupName: true,
+                    enableNoGroups:false, // Required
+                    hideGroupedColumn: true,
+                    groupTextTpl: '{text}'
+                }),
+                bbar: new Ext.PagingToolbar({
+			pageSize: perPage,
+			store: subcategoryStore
+		})
+            });
+
+            var catStore=new Ext.data.JsonStore({
+                url: 'admin/companies/get-categories-for-subcat',
+                fields: ['category_id', 'cat_name']
+            });
+            catStore.load();
+
+            var catCombo = new Ext.form.ComboBox({
+                store: catStore,
+                id: 'category-combo',
+                name: 'cat_name',
+                hiddenName: 'category_id',
+                displayField: 'cat_name',
+                valueField: 'category_id',
+		anchor: '90%',
+                editable: false,
+                mode: 'remote',
+                forceSelection: true,
+                triggerAction: 'all',
+                fieldLabel: 'Category',
+                emptyText: 'Select category',
+                selectOnFocus: true
+            });
+
+            //edit window
+            var subcategoryForm = new Ext.form.FormPanel ({
+		id: 'category-form',
+		baseCls: 'x-plain',
+		bodyStyle: 'padding: 10px;',
+		frame: true,
+		labelWidth: 120,
+		waitMsgTarget: true,
+		monitorValid: true,
+		items: [{
+			xtype: 'textfield',
+			fieldLabel: 'Name EN',
+			name: 'name_en_US',
+			id: 'name-en',
+			anchor: '90%'
+		},{
+			xtype: 'textfield',
+			fieldLabel: 'Name RO',
+			name: 'name_ro_MD',
+			id: 'name-ro',
+                        allowBlank: false,
+			anchor: '90%'
+		},{
+			xtype: 'textfield',
+			fieldLabel: 'Name RU',
+			name: 'name_ru_RU',
+			id: 'name-ru',
+			anchor: '90%'
+		},catCombo,{
+			xtype: 'hidden',
+			id: 'category-id',
+			name: 'subcategory_id'
+		}]
+            });
+
+            var editWindow = new Ext.Window ({
+		id: 'subcategory-window',
+		iconCls: 'edit-window',
+		title: 'Edit Subcategory',
+		border: true,
+		width: winMaxWidth,
+		height: winMaxHeight,
+		minWidth: winMaxWidth,
+		minHeight: winMaxHeight,
+		layout: 'form',
+		plain: true,
+		bodyStyle: 'padding: 10px;',
+		modal: true,
+		closeAction: 'hide',
+		items: [subcategoryForm],
+		listeners: {
+			resize: function () {
+				if (windowActive) {
+					if (editWindow.getSize().height > winMaxHeight) {
+						editWindow.setSize(editWindow.getSize().width, winMaxHeight);
+					}
+				}
+			},
+			activate: function () {
+				windowActive = true;
+			},
+			hide: {
+				fn : function(){
+					windowActive = false;
+				}
+			}
+		}
+            });
+
+            var buttonSubmit = subcategoryForm.addButton ({
+                text: 'Save',
+                type: 'submit',
+                cls: 'x-btn-text-icon',
+                icon: 'images/icons/accept.png',
+                timeout: 10,
+                formBind: true,
+                handler: function() {
+                    subcategoryForm.getForm().submit ({
+                            timeout: 30000,
+                            success: function(form,action) {
+                                    editWindow.hide();
+                                    subcategoryStore.load();
+                                    UI.notify("Success", action.result.message);
+                            },
+                            failure: function(form,action) {
+                                    Ext.Msg.alert("Warning", action.result.message);
+                            },
+                            url: 'admin/companies/add-edit-subcategory',
+                            waitMsg: 'Saving...'
+                    });
+                }
+            });
+
+            var buttonCancel = subcategoryForm.addButton ({
+                text: 'Cancel',
+                cls: 'x-btn-text-icon',
+                icon: 'images/icons/cancel.png',
+                handler: function() {
+                    editWindow.hide();
+                }
+            });
+
+            //delete window
+            var deletePanel = new Ext.form.FormPanel ({
+                    name: 'delete-form',
+                    baseCls: 'x-plain',
+                    bodyStyle: 'padding: 10px;',
+                    waitMsgTarget: true,
+                    frame: true,
+                    items: [{
+                            xtype: 'hidden',
+                            name: 'ids'
+                    }, {
+                            xtype: 'label',
+                            text: 'Are you sure you want to delete subcategory?'
+                    }]
+            })
+
+            var deleteWindow = new Ext.Window ({
+                    id: 'delete-window',
+                    iconCls: 'delete-window',
+                    title: 'Delete subcategory',
+                    border: true,
+                    width: delWinMaxWidth,
+                    height: delWinMaxHeight,
+                    minWidth: delWinMaxWidth,
+                    minHeight: delWinMaxHeight,
+                    resizable: false,
+                    layout: 'form',
+                    plain: true,
+                    bodyStyle: 'padding: 10px;',
+                    buttonAlign: 'center',
+                    modal: true,
+                    closeAction: 'hide',
+                    items: [ deletePanel ]
+            });
+
+            var submitDeleteBtn = deletePanel.addButton ({
+                    text: 'Delete',
+                    type: 'submit',
+                    timeout: 10,
+                    cls: 'x-btn-text-icon',
+                    icon: 'images/icons/accept.png',
+                    handler: function() {
+                            deletePanel.getForm().submit ({
+                                    timeout: 30000,
+                                    success: function(form,action) {
+                                            deleteWindow.hide();
+                                            subcategoryStore.load();
+                                            UI.notify("Success", action.result.message);
+                                    },
+                                    failure: function(form,action) {
+                                            Ext.Msg.alert("Warning", action.result.message);
+                                    },
+                                    url: 'admin/companies/delete-subcategory',
+                                    waitMsg: 'Deleting...'
+                            });
+                    }
+            });
+
+            var cancelDeleteBtn = deletePanel.addButton ({
+                    text: 'Cancel',
+                    cls: 'x-btn-text-icon',
+                    icon: 'images/icons/cancel.png',
+                    handler: function() {
+                            deleteWindow.hide();
+                    }
+            });
+
+            // buttons and handlers
+
+            var editSubcat = function() {
+                var rec = subcategoryGrid.getSelectionModel().getSelected();
+                editWindow.show();
+                Ext.getCmp('category-combo').setValue(rec.data.category_id);
+                subcategoryForm.getForm().loadRecord(rec);
+            };
+
+            var addSubcat = function() {
+                editWindow.show();
+                subcategoryForm.getForm().reset();
+                Ext.getCmp('category-id').setValue('0');
+            };
+
+            var deleteSubcat = function() {
+                var sm = subcategoryGrid.getSelectionModel();
+		var selectedRole = sm.getSelections();
+		var count = sm.getCount();
+
+		var a = [];
+		for(var i = 0; i < count; i++){
+			a.push(selectedRole[i].data.subcategory_id);
+		}
+
+		deleteWindow.show();
+		deletePanel.getForm().findField('ids').setValue(a.toString());
+            };
+
+            var editBtn = new Ext.Toolbar.Button({
+                cls: 'x-btn-text-icon',
+                icon: 'images/icons/application_edit.png',
+                text: 'Edit Subcategory',
+                handler: editSubcat,
+                disabled: true
+            });
+
+            var addBtn = new Ext.Toolbar.Button({
+                cls: 'x-btn-text-icon',
+                icon: 'images/icons/add.png',
+                text: 'Add Subcategory',
+                handler: addSubcat
+            });
+
+            var deleteBtn = new Ext.Toolbar.Button({
+                cls: 'x-btn-text-icon',
+                icon: 'images/icons/cancel.png',
+                text: 'Delete Subcategory',
+                handler: deleteSubcat,
+                disabled: true
+            });
+
+            subcategoryGrid.getSelectionModel().on('selectionchange', function() {
+                    editBtn.setDisabled(this.selections.length != 1);
+                    deleteBtn.setDisabled(this.selections.length == 0);
+                    return true;
+            });
+
+            var main_panel = new Ext.Panel({
+                layout: 'fit',
+                frame: false,
+                border: false,
+                items: [subcategoryGrid],
+                tbar: new Ext.Toolbar({
+                    items: [addBtn,'-',editBtn,'-',deleteBtn]
+                })
+            });
+
+            UI.activeTab.add(main_panel);
+            UI.activeTab.setTitle('Subcategories');
+
+            UI.activeTab.doLayout();
+            UI.statusbar.clearStatus();
+        }) ();
+    </script>
+</body>

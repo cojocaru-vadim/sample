@@ -1,0 +1,17 @@
+#AuthUserFile /usr/home/deltamd/public_html/delta/public/.htpasswd
+#AuthType Basic
+#AuthName "Put the password"
+#Require valid-user
+
+#SetEnv APPLICATION_ENV production
+
+RewriteEngine On
+RewriteCond %{http_host} ^delta.md
+RewriteRule ^(.*) http://www.delta.md/$1 [R=301,L,nc]
+
+RewriteCond %{REQUEST_FILENAME} -s [OR]
+RewriteCond %{REQUEST_FILENAME} -l [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^.*$ - [NC,L]
+RewriteRule ^.*$ index.php [NC,L]
+

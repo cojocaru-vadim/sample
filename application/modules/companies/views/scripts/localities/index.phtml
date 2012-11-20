@@ -1,0 +1,68 @@
+<?php $region = (isset($this->localities)) ? $this->localities[0]['region_name'] : $this->locality_name; ?>
+<?php $this->headTitle()->prepend($this->translate('company-in-locality') . ' ' . $region); ?>
+<?php
+        if(isset($this->regions))
+        {
+            echo '<ul class="simple_grid">';
+            for($i = 0; $i < count($this->regions); $i++)
+            {
+                echo "<li>
+                    <a class='tab-links' href='".$this->url(array('region' => $this->regions[$i]['region_url'], 'page' => '1'), 'companies-localities')."'>".$this->regions[$i]['region_name']." </a>
+                </li>";
+            }
+            echo '</ul>';
+        }
+
+        if(isset($this->localities))
+        {
+             echo '<h2>'.$this->localities[0]['region_name'].'</h2>';
+             echo '<ul class="simple_grid">';
+             for($i = 0; $i < count($this->localities); $i++)
+             {
+                echo "<li>
+                    <a class='tab-links' href='".$this->url(array('region' => $this->localities[$i]['region_url'] , 'locality' => $this->localities[$i]['locality_url'], 'page' => '1'), 'companies-localities')."'>".$this->localities[$i]['locality_name']." </a>
+                </li>";
+             }
+             echo '</ul>';
+        }
+
+        echo '<div class="clearfix"></div>';
+
+        if(isset($this->companies) && count($this->companies) > 0)
+        {
+            //$region = (isset($this->localities)) ? $this->localities[0]['region_name'] : $this->companies[0]['locality_name'];
+
+        echo "<div class='box'>
+                <span class='box_title'>".$this->translate('company-in-locality')." : {$region}</span>
+                <div class='box_content'>";
+
+            echo '<ul class="product_grid">';
+            for($i = 0; $i < count($this->companies); $i++)
+            {
+                echo
+                        '<li><a class="product_logo" href="'.$this->url(array('company_url' => $this->companies[$i]['company_url']), 'company-view').'" ><img alt="'.htmlentities($this->companies[$i]['name'], ENT_QUOTES).'" src="'. $this->baseUrl($this->companies[$i]['logo_img']) .'" /></a>
+                            '. $this->companies[$i]['name'] .' <br />
+                             <a class="tab-links" href="'.$this->url(array('company_url' => $this->companies[$i]['company_url']), 'company-view').'">'.$this->translate('details').'</a>
+                        ';
+            }
+            echo '</ul>';
+            echo '<div class="clearfix"></div>';
+            echo '<ul id="pagination">';
+            echo /*$this->translate('pages').': '.*/$this->pages;
+            echo '</ul>';
+
+
+        echo "</div>
+              </div>
+        ";
+
+
+        }elseif(isset($this->companies))
+        {
+            echo "<strong>".$this->translate('no-companies-for-locality')."</strong><br /><br />
+                            <a class='header_login' style='color:#FFFFFF; width:240px;' href='". $this->url(array('controller' => 'companies', 'action' => 'add'), 'default', true)."'>" .$this->translate('add-company') . "</a>";
+
+
+
+        }
+    ?>

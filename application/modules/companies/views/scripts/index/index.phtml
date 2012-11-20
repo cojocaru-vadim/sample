@@ -1,0 +1,80 @@
+<?php $this->headTitle()->prepend($this->translate('companies')); ?>
+<script>
+    function changeTab(t,index)
+    {
+        if($(t).parent().hasClass('activetab')) return;
+        $('#tab-buttons > div').each(function(ind,th){
+            if($(th).hasClass('activetab'))
+                {
+                    $(th).removeClass("activetab");
+                    $(th).addClass("inactivetab");
+                }
+        });
+        $(t).parent().removeClass("inactivetab");
+        $(t).parent().addClass("activetab");
+        
+        $('#tab-content > div').css('display', 'none');
+        $('#tab-content-'+index).css('display', 'block');
+    }
+</script>
+
+<div id="tab-container">
+    <div id="tab-buttons">
+        <div class="activetab">
+            <h2 onclick="changeTab(this,0)"><?php echo $this->translate('catalog-city');?></h2>
+        </div>
+        <div class="separator">&nbsp;</div>
+        <div class="inactivetab">
+            <h2 onclick="changeTab(this,1)"><?php echo $this->translate('catalog-category');?></h2>
+        </div>
+<!--        <div class="separator">&nbsp;</div>
+        <div class="inactivetab">
+            <h2 onclick="changeTab(this,2)"><?php /*echo $this->translate('catalog-foreign');*/?></h2>
+        </div>-->
+    </div>
+    <div id="tab-content" class="clearfix">
+        <div id="tab-content-0" style="display: block; padding: 10px 0px;">
+            <ul class="simple_grid">
+            <?php
+                if(isset($this->regions))
+                {
+                    for($i = 0; $i < count($this->regions); $i++){
+                        echo "<li>
+                            <a class='tab-links' href='".$this->url(array('region' => $this->regions[$i]['region_url'], 'page' => '1'), 'companies-localities')."'>".$this->regions[$i]['region_name']." </a>
+                        </li>";
+                    }
+                }
+            ?>
+                </ul>
+            <div class="clearfix"></div>
+        </div>
+        <div id="tab-content-1" style="display: none; padding: 10px 0px;">
+            <ul class="simple_grid">
+            <?php
+
+                for($i = 0; $i < count($this->categories); $i++){
+                    echo "<li>
+                        <a class='tab-links' href='".$this->url(array('categ' => $this->categories[$i]['cat_url'], 'page' => '1'), 'companies-categories')."'>".$this->categories[$i]['cat_name']." </a>
+                    </li>";
+                }
+            ?>
+                </ul>
+            <div class="clearfix"></div>
+        </div>
+        <div id="tab-content-2" style="display: none; padding: 10px 0px;">
+            <ul class="simple_grid">
+            <?php
+                if(isset($this->countries))
+                {
+                    for($i = 0; $i < count($this->countries); $i++){
+                        echo "<li>
+                            <a class='tab-links' href='".$this->url(array('region' => $this->countries[$i]['iso'], 'page' => '1'), 'companies-countries')."'>".$this->countries[$i]['printable_name']." </a>
+                        </li>";
+                    }
+                }
+            ?>
+                </ul>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>

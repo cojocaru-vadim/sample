@@ -1,0 +1,32 @@
+/* 
+    Document   : admin.css
+    Created on : 14.03.2011, 14:50:50
+    Author     : denis
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+/* 
+   TODO customize this sample style
+   Syntax recommendation http://www.w3.org/TR/REC-CSS2/
+*/
+
+.edit-window
+{
+     background-image:url("../../images/icons/application_edit.png") !important;
+}
+
+.add-window
+{
+     background-image:url("../../images/icons/add.png") !important;
+}
+
+.delete-window
+{
+     background-image:url("../../images/icons/cancel.png") !important;
+}
+
+.publish-window
+{
+    background-image:url("../../images/icons/page_add.png") !important;
+}
