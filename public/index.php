@@ -1,6 +1,6 @@
 <?php
 
-//echo "Here"; die;
+//echo "Here is sample project " . $_SERVER['REMOTE_ADDR'].$_SERVER['HTTP_USER_AGENT'].$_SERVER['HTTP_ACCEPT_LANGUAGE'].$_SERVER['HTTP_REFERER'].$_SERVER['REQUEST_URI']; die;
 
 //echo get_include_path();
 //die();
