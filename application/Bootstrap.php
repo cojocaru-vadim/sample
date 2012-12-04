@@ -59,6 +59,7 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
             // Set the initial JS to load:
             $view->headScript()->appendFile('https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js');
             $view->headScript()->appendFile('/js/script.js');
+
         }
 
     }
